@@ -46,7 +46,7 @@ xmlns:InfiniteBoard="clr-namespace:WpfInfiniteBoard;assembly=WpfInfiniteBoard"
 ![image](https://user-images.githubusercontent.com/56195432/197851455-c1d78a4c-801a-456a-9fa8-94726312ebea.png)
 
 
-**CellulAdded** : Évènement se délanchant lorsqu'une case est ajouté, *e* étant la nouvelle case (de type Border)
+**CellulAdded** *(sender, e)* : Évènement se délanchant lorsqu'une case est ajouté, *e* étant la nouvelle case (de type Border)
 
 
 ## Quelques méthode à connaitre :
