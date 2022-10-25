@@ -19,18 +19,22 @@ xmlns:InfiniteBoard="clr-namespace:WpfInfiniteBoard;assembly=WpfInfiniteBoard"
 **CellSize** : Taille des cases
 
 **BorderThickness** : Épaisseur des bordures
+
 ![image](https://user-images.githubusercontent.com/56195432/197851905-632dd44c-0468-467a-995c-29fa244120e5.png)
 
 
 **Foregroud** : Couleur des bordures des cases
 **Background** : Couleur du contrôle
+
 ![image](https://user-images.githubusercontent.com/56195432/197851064-cff248cb-b76d-4297-afae-dbcae3192753.png)
 
 **PlacedCellBorderBrush** : Couleur de la bordure des cases ajoutées 
 **PlacedCellBackground** : Couleur des cases ajoutées
+
 ![image](https://user-images.githubusercontent.com/56195432/197851203-4aeb1647-1e24-46a4-ad2f-b8de5b5ab0a2.png)
 
 **PlacedCellHaveBorder** : Est-ce que les cases ajoutées ont une bordure ?
+
 ![image](https://user-images.githubusercontent.com/56195432/197851455-c1d78a4c-801a-456a-9fa8-94726312ebea.png)
 
 **CellulAdded** : Évènement se délanchant lorsqu'une case est ajouté, *e* étant la nouvelle case (de type Border)
