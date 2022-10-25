@@ -25,12 +25,12 @@ xmlns:InfiniteBoard="clr-namespace:WpfInfiniteBoard;assembly=WpfInfiniteBoard"
 **CellSize** : Taille des cases
 
 
-**BorderThickness** : Épaisseur des bordures
+**BorderThickness** : Épaisseur du quadrillage
 
 ![image](https://user-images.githubusercontent.com/56195432/197851905-632dd44c-0468-467a-995c-29fa244120e5.png)
 
 
-**Foregroud** : Couleur des bordures des cases
+**Foregroud** : Couleur du quadrillage
 
 **Background** : Couleur du contrôle
 
@@ -67,6 +67,6 @@ xmlns:InfiniteBoard="clr-namespace:WpfInfiniteBoard;assembly=WpfInfiniteBoard"
 
 **DoesAnyCellsAlreadyExistHere(int xFromOrigin, int yFromOrigin)** *return bool* : Est-ce que une case est placée à ces coordonnées ?
 
-**ChangeBackgroundAndBorderColor(Brush background, Brush foreground)** : Change la couleur de fond et des bordures des cases du contrôle
+**ChangeBackgroundAndBorderColor(Brush background, Brush foreground)** : Change la couleur de fond et du quadrillage du contrôle
 
 **GetAllChildren()** : Retourne un dictionnaire de toutes les cases placés 
