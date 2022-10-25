@@ -27,19 +27,15 @@ namespace demo
 
         private void Window_ContentRendered(object sender, EventArgs e)
         {
-            InfiniteBoard.CellulAdded += (sender, e) =>
+            InfiniteBoard.CellAdded += (sender, e) =>
             {
                 
             };
-
         }
 
         private void Button_EraseAll_Click(object sender, RoutedEventArgs e)
         {
             InfiniteBoard.ClearBoard();
-
-            InfiniteBoard.BorderThickness = 2;
-
         }
     }
 }

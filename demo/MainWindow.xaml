@@ -8,22 +8,19 @@
         mc:Ignorable="d"
         Title="Infinite Board Demo" Height="450" Width="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" ContentRendered="Window_ContentRendered">
     <Grid Background="#FFEAD3D3">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.05*"/>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="0.05*"/>
-        </Grid.ColumnDefinitions>
+
         <Grid.RowDefinitions>
-            <RowDefinition Height="0.05*"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="0.05*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Column="1" Grid.Row="1">
-            <InfiniteBoard:InfiniteBoardControl x:Name="InfiniteBoard" AllowZoom="True" AllowMoveAround="True" Foreground="Orange" Background="Beige" PlacedCellBorderBrush="Green" PlacedCellBackground="Aqua" CellSize="40" PlacedCellHaveBorder="True"/>
-
+        <Grid Grid.Row="0">
+            <InfiniteBoard:InfiniteBoardControl x:Name="InfiniteBoard" CellSize="40" 
+                                                AllowUserToZoom="True" AllowUserToMoveAround="True" 
+                                                Foreground="Orange" Background="Beige" PlacedCellBorderBrush="Green" 
+                                                PlacedCellBackground="Aqua" PlacedCellHaveBorder="True"/>
         </Grid>
-        <Button Content="Erase All" Grid.Column="1" Grid.Row="2" Click="Button_EraseAll_Click"/>
-
+        
+        <Button Content="Erase All" Grid.Row="1" Click="Button_EraseAll_Click"/>
     </Grid>
 </Window>

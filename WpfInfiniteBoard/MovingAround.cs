@@ -54,7 +54,7 @@ namespace WpfInfiniteBoard
 
         private void Canvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            if (InfiniteBoardControl.AllowZoom)
+            if (InfiniteBoardControl.AllowUserToZoom)
             {
                 var position = e.GetPosition(Canvas);
                 var transform = (Canvas.RenderTransform as TransformGroup).Children[0] as MatrixTransform;
@@ -68,7 +68,7 @@ namespace WpfInfiniteBoard
 
         internal void Canvas_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(e.MiddleButton == MouseButtonState.Pressed && InfiniteBoardControl.AllowMoveAround)
+            if(e.MiddleButton == MouseButtonState.Pressed && InfiniteBoardControl.AllowUserToMoveAround)
                 if (e.OriginalSource is Canvas )
                 {
                     var mousePosition = Mouse.GetPosition(Conteneur);
