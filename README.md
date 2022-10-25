@@ -16,11 +16,11 @@ xmlns:InfiniteBoard="clr-namespace:WpfInfiniteBoard;assembly=WpfInfiniteBoard"
 
 ### Quelques propiétés et évènement à connaitre :
 
-**AllowZoom** : L'utilisateur peut-il zoomer dans le contrôle ?
+**AllowUserToZoom** : L'utilisateur peut-il zoomer dans le contrôle ?
 
-**AllowMoveAround** : L'utilisateur peut-il naviguer dans le contrôle ? (clique sur la molette de la souris)
+**AllowUserToMoveAround** : L'utilisateur peut-il naviguer dans le contrôle ? (clique sur la molette de la souris)
 
-**AllowPlaceCells** : L'utilisateur peut-il placé des cases avec un clique gauche et en supprimer avec un clique droit ?
+**AllowUserToPlaceCells** : L'utilisateur peut-il placé des cases avec un clique gauche et en supprimer avec un clique droit ?
 
 **CellSize** : Taille des cases
 
@@ -49,7 +49,7 @@ xmlns:InfiniteBoard="clr-namespace:WpfInfiniteBoard;assembly=WpfInfiniteBoard"
 ![image](https://user-images.githubusercontent.com/56195432/197851455-c1d78a4c-801a-456a-9fa8-94726312ebea.png)
 
 
-**CellulAdded** *(sender, e)* : Évènement se délanchant lorsqu'une case est ajouté, *e* étant la nouvelle case (de type Border)
+**CellAdded** *(sender, e)* : Évènement se délanchant lorsqu'une case est ajouté, *e* étant la nouvelle case (de type Border)
 
 
 ## Quelques méthode à connaitre :
