@@ -20,7 +20,7 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Column="1" Grid.Row="1">
-            <InfiniteBoard:InfiniteBoardControl x:Name="InfiniteBoard" Foreground="Orange" Background="Beige" PlacedCellBorderBrush="Green" PlacedCellBackground="Aqua" CellSize="40" PlacedCellHaveBorder="True"/>
+            <InfiniteBoard:InfiniteBoardControl x:Name="InfiniteBoard" AllowZoom="True" AllowMoveAround="True" Foreground="Orange" Background="Beige" PlacedCellBorderBrush="Green" PlacedCellBackground="Aqua" CellSize="40" PlacedCellHaveBorder="True"/>
 
         </Grid>
         <Button Content="Erase All" Grid.Column="1" Grid.Row="2" Click="Button_EraseAll_Click"/>

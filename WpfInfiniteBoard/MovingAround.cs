@@ -22,10 +22,13 @@ namespace WpfInfiniteBoard
         //private Cursor CursorGrabbing;
 
         private TransformGroup transformGroup = new TransformGroup();
+        private InfiniteBoardControl InfiniteBoardControl;
 
-        public void MovingAroundCanvasInit(Canvas canvas, Grid conteneur)
+
+        public void MovingAroundCanvasInit(Canvas canvas, Grid conteneur, InfiniteBoardControl infiniteBoardControl)
         {
             this.Canvas = canvas;
+            InfiniteBoardControl = infiniteBoardControl;
 
             Conteneur = conteneur;
             //CursorGrabbing = cursor;
@@ -51,19 +54,22 @@ namespace WpfInfiniteBoard
 
         private void Canvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            var position = e.GetPosition(Canvas);
-            var transform = (Canvas.RenderTransform as TransformGroup).Children[0] as MatrixTransform;
-            var matrix = transform.Matrix;
-            var scale = e.Delta >= 0 ? 1.1 : (1.0 / 1.1); // choose appropriate scaling factor
+            if (InfiniteBoardControl.AllowZoom)
+            {
+                var position = e.GetPosition(Canvas);
+                var transform = (Canvas.RenderTransform as TransformGroup).Children[0] as MatrixTransform;
+                var matrix = transform.Matrix;
+                var scale = e.Delta >= 0 ? 1.1 : (1.0 / 1.1); // choose appropriate scaling factor
 
-            matrix.ScaleAtPrepend(scale, scale, position.X, position.Y);
-            (Canvas.RenderTransform as TransformGroup).Children[0] = new MatrixTransform(matrix);
+                matrix.ScaleAtPrepend(scale, scale, position.X, position.Y);
+                (Canvas.RenderTransform as TransformGroup).Children[0] = new MatrixTransform(matrix);
+            }
         }
 
         internal void Canvas_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if(e.MiddleButton == MouseButtonState.Pressed)
-                if (e.OriginalSource is Canvas)
+            if(e.MiddleButton == MouseButtonState.Pressed && InfiniteBoardControl.AllowMoveAround)
+                if (e.OriginalSource is Canvas )
                 {
                     var mousePosition = Mouse.GetPosition(Conteneur);
                     deltaX = mousePosition.X;
@@ -84,7 +90,7 @@ namespace WpfInfiniteBoard
 
         internal void Canvas_PreviewMouseMove(object sender, MouseEventArgs e)
         {
-            if (!_isMoving) return;
+            if (!_isMoving ) return;
 
                 var mousePoint = Mouse.GetPosition(Conteneur);
 

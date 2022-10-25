@@ -51,7 +51,7 @@ namespace WpfInfiniteBoard
         private int CANVAS_SIZE = 10_000_000;
 
         private Point CenterCell { get; set; }
-        private Border Cell { get; set; }
+        private Border CellTemplate { get; set; }
 
         private int cellSize = 40;
 
@@ -70,7 +70,7 @@ namespace WpfInfiniteBoard
         public double BorderThickness
         {
             get => borderThickness;
-            set => borderThickness = value;
+            set => ChangeBorderThickness(value);
         }
 
         private bool allowPlaceCells = true;
@@ -80,6 +80,23 @@ namespace WpfInfiniteBoard
         {
             get => allowPlaceCells;
             set => allowPlaceCells = value;
+        }
+        private bool allowMoveAround = true;
+
+        [Description("Allow to move around the board?"), Category("Apparence")]
+        public bool AllowMoveAround
+        {
+            get => allowMoveAround;
+            set => allowMoveAround = value;
+        }
+
+        private bool allowZoom = true;
+
+        [Description("Allow to zoom in and out?"), Category("Apparence")]
+        public bool AllowZoom
+        {
+            get => allowZoom;
+            set =>  allowZoom = value;
         }
 
         private Brush placedCellBorderBrush = Brushes.Black;
@@ -100,13 +117,21 @@ namespace WpfInfiniteBoard
             set => placedCellBackground = ((Brush)BrushConverter.ConvertFromString(value.ToString().Replace("{", string.Empty).Replace("}", string.Empty)));
         } 
         
-        private bool placedCellHaveBorder = true;
+        private bool? placedCellHaveBorder = true;
 
         [Description("Does placed cell have a border"), Category("Apparence")]
-        public bool PlacedCellHaveBorder
+        public bool? PlacedCellHaveBorder
         {
             get => placedCellHaveBorder;
-            set => placedCellHaveBorder = value;
+            set => ChangeDoesPlacedCellHaveBorder(value);
+        }
+
+        private void ChangeDoesPlacedCellHaveBorder(bool? value)
+        {
+            placedCellHaveBorder = value;
+
+            if(CellTemplate != null)
+                CellTemplate.BorderThickness = placedCellHaveBorder == false ? new Thickness(0) : new Thickness(borderThickness);
         }
 
         BrushConverter BrushConverter = new BrushConverter();
@@ -123,32 +148,35 @@ namespace WpfInfiniteBoard
 
         private Canvas CanvasMain;
 
+        private MovingAround Ma = new MovingAround();
+
         public override void OnApplyTemplate()
         {
             CanvasMain = GetTemplateChild("Canvas_Main") as Canvas;
             CanvasMain.Width = CANVAS_SIZE;
             CanvasMain.Height = CANVAS_SIZE;
 
-            ApplyCellSize();
-            ApplyCellBackgroundAndBorderColor(this.Background, this.Foreground);
-            ApplyBorderThickness(borderThickness);
 
-            Cell = new Border()
+            CellTemplate = new Border()
             {
-                Width = cellSize,
-                Height = cellSize,
+                Width = cellSize + 0.1,
+                Height = cellSize + 0.1,
                 Background = placedCellBackground,
             };
 
-            Cell.BorderBrush = placedCellBorderBrush;
-            Cell.BorderThickness = placedCellHaveBorder == true ? Cell.BorderThickness = new Thickness(borderThickness) : new Thickness(0);
+            ApplyCellSize();
+            ChangeBackgroundAndBorderColor(this.Background, this.Foreground);
+            ChangeBorderThickness(borderThickness);
+
+
+            CellTemplate.BorderBrush = placedCellBorderBrush;
+            CellTemplate.BorderThickness = placedCellHaveBorder == true ? CellTemplate.BorderThickness = new Thickness(borderThickness) : new Thickness(0);
 
             this.Loaded += (sender, e) =>
             {
                 Grid? GridConteneur = GetTemplateChild("Grid_Conteneur") as Grid;
 
-                MovingAround ma = new MovingAround();
-                ma.MovingAroundCanvasInit(CanvasMain, GridConteneur);
+                Ma.MovingAroundCanvasInit(CanvasMain, GridConteneur, this);
 
                 // Calcul la position de la cellule au centre du Canvas
                 // . Calcul du multiple le plus proche de CellSize par la width du canvas / 2
@@ -197,24 +225,23 @@ namespace WpfInfiniteBoard
         private void Canvas_Main_MouseMove(object sender, MouseEventArgs e)
         {
             // Passe en mode "dessine"
-            if (e.LeftButton == MouseButtonState.Pressed)
+            if (e.LeftButton == MouseButtonState.Pressed && allowPlaceCells)
             {
-                if (allowPlaceCells)
-                {
-                    // place une cellule là où on a cliqué
-                    int posX, posY;
-                    GetCoordinateWhereToPlace(out posX, out posY);
+                
+                // place une cellule là où on a cliqué
+                int posX, posY;
+                GetCoordinateWhereToPlace(out posX, out posY);
 
-                    // vérifie que aucun n'est déjà placé là
-                    if (!DoesAnyCellsAlreadyExistHere(posX, posY))
-                    {
-                        // Place une nouvelle cell
-                        AddCell(posX, posY);
-                    }
+                // vérifie que aucun n'est déjà placé là
+                if (!DoesAnyCellsAlreadyExistHere(posX, posY))
+                {
+                    // Place une nouvelle cell
+                    AddCell(posX, posY);
                 }
+                
             }
             // eraser
-            else if (e.RightButton == MouseButtonState.Pressed)
+            else if (e.RightButton == MouseButtonState.Pressed && allowPlaceCells)
             {
                 try
                 {
@@ -234,12 +261,11 @@ namespace WpfInfiniteBoard
         }
 
 
-        public void EraseCellAtCoordinate(int posX, int posY)
+        private void EraseCellAtCoordinate(int posX, int posY)
         {
             Point co = CoordinateToCoordinateFromOrigin(posX, posY);
 
-            Border? cell = GetCellAtCoordinate(Convert.ToInt32(co.X), Convert.ToInt32(co.Y));
-            EraseCell(cell,  co);
+            EraseCell(Convert.ToInt32(co.X), Convert.ToInt32(co.Y));
         }
 
         private Border? GetCellAtCoordinate(int posX, int posY)
@@ -248,11 +274,12 @@ namespace WpfInfiniteBoard
             return InfiniteCanvasChildren.FirstOrDefault(x => x.Key.X == posX && x.Key.Y == posY).Value;
         }
 
-        private void EraseCell(Border? cell, Point coordinate)
-        {           
+        public void EraseCell(int xFromOrigin, int yFromOrigin)
+        {
+            Border? cell = GetCellAtCoordinate(Convert.ToInt32(xFromOrigin), Convert.ToInt32(yFromOrigin));
             CanvasMain.Children.Remove(cell);
             InfiniteCanvasChildren.Remove(
-                coordinate
+                new Point(xFromOrigin, yFromOrigin)
             );
         }
 
@@ -289,15 +316,18 @@ namespace WpfInfiniteBoard
         }
 
 
-        private void ApplyCellBackgroundAndBorderColor(Brush background, Brush border)
+        public void ChangeBackgroundAndBorderColor(Brush background, Brush border)
         {
             (GetTemplateChild("Rectangle_cell") as Rectangle).Fill = background;
             (GetTemplateChild("Rectangle_cell") as Rectangle).Stroke = border;
         }
 
-        private void ApplyBorderThickness(double borderThickness)
+        private void ChangeBorderThickness(double borderThickness)
         {
+            this.borderThickness = borderThickness;
+
             (GetTemplateChild("Rectangle_cell") as Rectangle).StrokeThickness = borderThickness;
+            CellTemplate.BorderThickness = new Thickness(borderThickness);
         }
 
         private static int NeareastMultiple(int value, int factor)
@@ -310,7 +340,7 @@ namespace WpfInfiniteBoard
 
         private void AddCell(int posX, int posY)
         {
-            Border copy = XamlReader.Parse(XamlWriter.Save(Cell)) as Border;
+            Border copy = XamlReader.Parse(XamlWriter.Save(CellTemplate)) as Border;
             InfiniteCanvasChildren.Add(
 
                     CoordinateToCoordinateFromOrigin(posX, posY),
@@ -340,22 +370,8 @@ namespace WpfInfiniteBoard
         {
             foreach (var entry in GetAllChildren())
             {
-                EraseCell(entry.Value, entry.Key) ;
+                EraseCell(Convert.ToInt32(entry.Key.X), Convert.ToInt32( entry.Key.Y)) ;
             }
         }
-    }
-
-    public class InfiniteBorderChild : EventArgs
-    {
-        public InfiniteBorderChild(int xfromOrigin, int yfromOrigin, Border children)
-        {
-            XfromOrigin = xfromOrigin;
-            YfromOrigin = yfromOrigin;
-            Children = children;
-        }
-
-        public int XfromOrigin { get; }
-        public int YfromOrigin { get; }
-        public Border Children { get; }
     }
 }

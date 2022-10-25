@@ -29,7 +29,7 @@ namespace demo
         {
             InfiniteBoard.CellulAdded += (sender, e) =>
             {
-                e.Background = Brushes.Orange;
+                
             };
 
         }
@@ -37,6 +37,9 @@ namespace demo
         private void Button_EraseAll_Click(object sender, RoutedEventArgs e)
         {
             InfiniteBoard.ClearBoard();
+
+            InfiniteBoard.BorderThickness = 2;
+
         }
     }
 }
