@@ -1,0 +1,29 @@
+﻿<Window x:Class="demo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:InfiniteBoard="clr-namespace:WpfInfiniteBoard;assembly=WpfInfiniteBoard"
+        xmlns:local="clr-namespace:demo"
+        mc:Ignorable="d"
+        Title="Infinite Board Demo" Height="450" Width="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" ContentRendered="Window_ContentRendered">
+    <Grid Background="#FFEAD3D3" MouseDown="Grid_MouseDown">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.05*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="0.05*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.05*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="0.05*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Column="1" Grid.Row="1">
+            <InfiniteBoard:InfiniteBoardControl x:Name="InfiniteBoard" AllowPlaceCells="True" Foreground="Orange" Background="Beige" PlacedCellBorderBrush="Green" PlacedCellBackground="Aqua" CellSize="40" PlacedCellHaveBorder="True"/>
+
+        </Grid>
+
+
+    </Grid>
+</Window>

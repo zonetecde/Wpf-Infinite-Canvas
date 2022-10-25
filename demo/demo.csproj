@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Capture d’écran 2022-10-21 095025.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WpfInfiniteBoard\WpfInfiniteBoard.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Capture d’écran 2022-10-21 095025.png" />
+  </ItemGroup>
+
+</Project>
