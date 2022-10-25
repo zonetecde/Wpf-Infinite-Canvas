@@ -1,7 +1,8 @@
-[![NuGet version (Newtonsoft.Json)](https://img.shields.io/nuget/v/WpfInfiniteBoard.svg?style=flat-square)](https://www.nuget.org/packages/WpfInfiniteBoard)
 
 # WpfInfiniteBoard
 Un contrôle grillé infini et entièrement customisable où l'on peut naviguer et placer des cellules
+
+[![NuGet version (WpfInfiniteBoard)](https://img.shields.io/nuget/v/WpfInfiniteBoard.svg?style=flat-square)](https://www.nuget.org/packages/WpfInfiniteBoard)
 
 ## Implémentation :
 
