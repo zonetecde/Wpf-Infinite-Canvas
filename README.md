@@ -54,10 +54,10 @@ xmlns:InfiniteBoard="clr-namespace:WpfInfiniteBoard;assembly=WpfInfiniteBoard"
 
 **InfiniteBoard.PlaceCell(int xFromOrigin, int yFromOrigin)** : Place une cellule aux coordonnées par apport à la case du centre du contrôle de la partie affiché lorsque le contrôle est initialisé.
 
-**
+
 **InfiniteBoard.EraseCell(int xFromOrigin, int yFromOrigin)** : Enlève une cellule aux coordonnées par apport à la case du centre du contrôle de la partie affiché lorsque le contrôle est initialisé.
 
-**
+
 
 
 **ClearBoard()** : Enlève les cases placé du contrôle
