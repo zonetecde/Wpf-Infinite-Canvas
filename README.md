@@ -5,9 +5,9 @@ Un contrôle grillé infini et entièrement customisable où l'on peut naviguer 
 
 Dans le code WPF de votre fenêtre :
 
-```wpf
+```html
 xmlns:InfiniteBoard="clr-namespace:WpfInfiniteBoard;assembly=WpfInfiniteBoard"
-<!-- ... -->
+
 <InfiniteBoard:InfiniteBoardControl x:Name="InfiniteBoard" />
 ```
 
