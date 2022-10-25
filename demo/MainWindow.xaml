@@ -7,7 +7,7 @@
         xmlns:local="clr-namespace:demo"
         mc:Ignorable="d"
         Title="Infinite Board Demo" Height="450" Width="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" ContentRendered="Window_ContentRendered">
-    <Grid Background="#FFEAD3D3" MouseDown="Grid_MouseDown">
+    <Grid Background="#FFEAD3D3">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.05*"/>
             <ColumnDefinition Width="1*"/>
@@ -20,10 +20,10 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Column="1" Grid.Row="1">
-            <InfiniteBoard:InfiniteBoardControl x:Name="InfiniteBoard" AllowPlaceCells="True" Foreground="Orange" Background="Beige" PlacedCellBorderBrush="Green" PlacedCellBackground="Aqua" CellSize="40" PlacedCellHaveBorder="True"/>
+            <InfiniteBoard:InfiniteBoardControl x:Name="InfiniteBoard" Foreground="Orange" Background="Beige" PlacedCellBorderBrush="Green" PlacedCellBackground="Aqua" CellSize="40" PlacedCellHaveBorder="True"/>
 
         </Grid>
-
+        <Button Content="Erase All" Grid.Column="1" Grid.Row="2" Click="Button_EraseAll_Click"/>
 
     </Grid>
 </Window>

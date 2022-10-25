@@ -29,14 +29,14 @@ namespace demo
         {
             InfiniteBoard.CellulAdded += (sender, e) =>
             {
-                e.Children.Background = Brushes.Orange;
+                e.Background = Brushes.Orange;
             };
 
         }
 
-        private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
+        private void Button_EraseAll_Click(object sender, RoutedEventArgs e)
         {
-
+            InfiniteBoard.ClearBoard();
         }
     }
 }

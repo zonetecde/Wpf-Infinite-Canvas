@@ -55,7 +55,7 @@ namespace WpfInfiniteBoard
 
         private int cellSize = 40;
 
-        private List<InfiniteBorderChild> InfiniteCanvasChildrent = new List<InfiniteBorderChild>();
+        private Dictionary<Point, Border> InfiniteCanvasChildren = new Dictionary<Point, Border>();
 
         [Description("Cell's size"), Category("Apparence")]
         public int CellSize
@@ -119,7 +119,7 @@ namespace WpfInfiniteBoard
         [Browsable(true)]
         [Category("Action")]
         [Description("Invoquer quand une nouvelle cellule est ajouté")]
-        public event EventHandler<InfiniteBorderChild> CellulAdded;
+        public event EventHandler<Border> CellulAdded;
 
         private Canvas CanvasMain;
 
@@ -234,27 +234,32 @@ namespace WpfInfiniteBoard
         }
 
 
-        private void EraseCellAtCoordinate(int posX, int posY)
+        public void EraseCellAtCoordinate(int posX, int posY)
         {
-            InfiniteBorderChild? cell = GetCellAtCoordinate(posX, posY);
-            EraseCell(cell);
+            Point co = CoordinateToCoordinateFromOrigin(posX, posY);
+
+            Border? cell = GetCellAtCoordinate(Convert.ToInt32(co.X), Convert.ToInt32(co.Y));
+            EraseCell(cell,  co);
         }
 
-        private InfiniteBorderChild? GetCellAtCoordinate(int posX, int posY)
+        private Border? GetCellAtCoordinate(int posX, int posY)
         {
             // erase la cell
-            return InfiniteCanvasChildrent.FirstOrDefault(x => Convert.ToInt32(Canvas.GetLeft(x.Children)) == posX && Convert.ToInt32(Canvas.GetTop(x.Children)) == posY);
+            return InfiniteCanvasChildren.FirstOrDefault(x => x.Key.X == posX && x.Key.Y == posY).Value;
         }
 
-        private void EraseCell(InfiniteBorderChild? cell)
-        {
-            CanvasMain.Children.Remove(cell.Children);
-            InfiniteCanvasChildrent.Remove(cell);
+        private void EraseCell(Border? cell, Point coordinate)
+        {           
+            CanvasMain.Children.Remove(cell);
+            InfiniteCanvasChildren.Remove(
+                coordinate
+            );
         }
 
         private bool DoesAnyCellsAlreadyExistHere(int posX, int posY)
         {
-            return InfiniteCanvasChildrent.Any(x => Convert.ToInt32(Canvas.GetLeft(x.Children)) == posX && Convert.ToInt32(Canvas.GetTop(x.Children)) == posY);
+            Point co = CoordinateToCoordinateFromOrigin(posX, posY);
+            return InfiniteCanvasChildren.Any(x => x.Key.X == co.X && x.Key.Y == co.Y);
         }
 
         private void GetCoordinateWhereToPlace(out int posX, out int posY)
@@ -270,9 +275,9 @@ namespace WpfInfiniteBoard
                 AddCell(Convert.ToInt32(CenterCell.X) + (xFromOrigin * cellSize), Convert.ToInt32(CenterCell.Y) + (yFromOrigin * cellSize));
         }
 
-        public List<InfiniteBorderChild> GetAllChildren()
+        public Dictionary<Point, Border> GetAllChildren()
         {
-            return InfiniteCanvasChildrent;
+            return InfiniteCanvasChildren;
         }
 
         private void ApplyCellSize()
@@ -306,18 +311,37 @@ namespace WpfInfiniteBoard
         private void AddCell(int posX, int posY)
         {
             Border copy = XamlReader.Parse(XamlWriter.Save(Cell)) as Border;
-            InfiniteCanvasChildrent.Add(new InfiniteBorderChild(
+            InfiniteCanvasChildren.Add(
 
-                     NeareastMultiple(Convert.ToInt32(((posX - CenterCell.X))), CellSize) / CellSize,
-                     NeareastMultiple(Convert.ToInt32(((posY - CenterCell.Y))), CellSize) / CellSize,
+                    CoordinateToCoordinateFromOrigin(posX, posY),
+                    
 
-                copy));
+                copy);
 
             CanvasMain.Children.Add(copy);
             Canvas.SetLeft(copy, posX);
             Canvas.SetTop(copy, posY);
 
-            CellulAdded(this, InfiniteCanvasChildrent.Last());
+            CellulAdded(this, copy);
+        }
+
+        private Point CoordinateToCoordinateFromOrigin(int x, int y)
+        {
+            return new Point(
+            
+
+                NeareastMultiple(Convert.ToInt32(((x - CenterCell.X))), CellSize) / CellSize,
+                NeareastMultiple(Convert.ToInt32(((y - CenterCell.Y))), CellSize) / CellSize
+
+            );
+        }
+
+        public void ClearBoard()
+        {
+            foreach (var entry in GetAllChildren())
+            {
+                EraseCell(entry.Value, entry.Key) ;
+            }
         }
     }
 
