@@ -65,6 +65,8 @@ xmlns:InfiniteBoard="clr-namespace:WpfInfiniteBoard;assembly=WpfInfiniteBoard"
 
 **ClearBoard()** : Enlève les cases placé du contrôle
 
+**DoesAnyCellsAlreadyExistHere(int xFromOrigin, int yFromOrigin)** *return bool* : Est-ce que une case est placée à ces coordonnées ?
+
 **ChangeBackgroundAndBorderColor(Brush background, Brush foreground)** : Change la couleur de fond et des bordures des cases du contrôle
 
 **GetAllChildren()** : Retourne un dictionnaire de toutes les cases placés 
