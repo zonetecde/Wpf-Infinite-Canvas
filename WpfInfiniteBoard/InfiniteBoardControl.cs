@@ -47,7 +47,6 @@ namespace WpfInfiniteBoard
         private Point CenterCell { get; set; }
         private Border CellTemplate { get; set; }
 
-
         private Dictionary<Point, Border> InfiniteCanvasChildren = new Dictionary<Point, Border>();
 
         /// <summary>
@@ -245,7 +244,7 @@ namespace WpfInfiniteBoard
                 GetCoordinateWhereToPlace(out posX, out posY);
 
                 // vérifie que aucun n'est déjà placé là
-                if (!DoesAnyCellsAlreadyExistHere(posX, posY))
+                if (!DoesAnyCellsAlreadyExistHereNoOrigin(posX, posY))
                 {
                     if (e.LeftButton == MouseButtonState.Pressed)
                         // Place une nouvelle cell
@@ -274,7 +273,7 @@ namespace WpfInfiniteBoard
                 GetCoordinateWhereToPlace(out posX, out posY);
 
                 // vérifie que aucun n'est déjà placé là
-                if (!DoesAnyCellsAlreadyExistHere(posX, posY))
+                if (!DoesAnyCellsAlreadyExistHereNoOrigin(posX, posY))
                 {
                     // Place une nouvelle cell
                     AddCell(posX, posY);
@@ -291,7 +290,7 @@ namespace WpfInfiniteBoard
                     GetCoordinateWhereToPlace(out posX, out posY);
 
                     // vérifie que aucun n'est déjà placé là
-                    if (DoesAnyCellsAlreadyExistHere(posX, posY))
+                    if (DoesAnyCellsAlreadyExistHereNoOrigin(posX, posY))
                     {
                         EraseCellAtCoordinate(posX, posY);
                     }
@@ -339,15 +338,24 @@ namespace WpfInfiniteBoard
         }
 
         /// <summary>
-        /// Est-ce que une case existe dans ses coordonné (par apport à l'origine)
+        /// Est-ce que une case existe dans ses coordonné 
         /// </summary>
         /// <param name="xFromOrigin"></param>
         /// <param name="yFromOrigin"></param>
         /// <returns></returns>
+        private bool DoesAnyCellsAlreadyExistHereNoOrigin(int x, int y)
+        {
+            Point co = CoordinateToCoordinateFromOrigin(x, y);
+            return InfiniteCanvasChildren.Any(x => x.Key.X == co.X && x.Key.Y == co.Y);
+        }
+        
+        /// <summary>
+        /// Est-ce que une case existe dans ses coordonné (par apport à l'origine)
+        /// </summary>
+        /// <returns></returns>
         public bool DoesAnyCellsAlreadyExistHere(int xFromOrigin, int yFromOrigin)
         {
-            Point co = CoordinateToCoordinateFromOrigin(xFromOrigin, yFromOrigin);
-            return InfiniteCanvasChildren.Any(x => x.Key.X == co.X && x.Key.Y == co.Y);
+            return InfiniteCanvasChildren.Any(x => x.Key.X == xFromOrigin && x.Key.Y == yFromOrigin);
         }
 
         /// <summary>
@@ -425,26 +433,30 @@ namespace WpfInfiniteBoard
         }
 
         /// <summary>
-        /// Ajoute une cellule aux coordonnées (par apport à l'origine)
+        /// Ajoute une cellule aux coordonnées
         /// </summary>
         /// <param name="posX"></param>
         /// <param name="posY"></param>
         private void AddCell(int posX, int posY)
         {
-            Border copy = XamlReader.Parse(XamlWriter.Save(CellTemplate)) as Border;
-            InfiniteCanvasChildren.Add(
+            if (!DoesAnyCellsAlreadyExistHereNoOrigin(posX, posY))
+            { 
+                Border copy = XamlReader.Parse(XamlWriter.Save(CellTemplate)) as Border;
 
-                    CoordinateToCoordinateFromOrigin(posX, posY),
-                    
+                InfiniteCanvasChildren.Add(
 
-                copy);
+                        CoordinateToCoordinateFromOrigin(posX, posY),
 
-            CanvasMain.Children.Add(copy);
-            Canvas.SetLeft(copy, posX);
-            Canvas.SetTop(copy, posY);
 
-            if(CellAdded != null)
-                CellAdded(this, copy);
+                    copy);
+
+                CanvasMain.Children.Add(copy);
+                Canvas.SetLeft(copy, posX);
+                Canvas.SetTop(copy, posY);
+
+                if (CellAdded != null)
+                    CellAdded(this, copy);
+            }
         }
 
         /// <summary>
