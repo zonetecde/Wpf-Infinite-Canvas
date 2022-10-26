@@ -10,7 +10,8 @@ Dans le code WPF de votre fenêtre :
 
 ```html
 xmlns:InfiniteBoard="clr-namespace:WpfInfiniteBoard;assembly=WpfInfiniteBoard"
-
+d:Width="1920" d:Height="1080" <!-- Important à précisé, sinon votre fenêtre fera une taille immense dans le designer --> 
+ 
 <InfiniteBoard:InfiniteBoardControl x:Name="InfiniteBoard" />
 ```
 
