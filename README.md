@@ -2,6 +2,10 @@
 # WpfInfiniteBoard
 Un contrôle grillé infini et entièrement customisable où l'on peut naviguer et placer des cases
 
+
+![Wpf Infinite Control](https://user-images.githubusercontent.com/56195432/198040384-bff2c962-032e-438d-868c-1093512b2ef4.gif)
+
+
 [![NuGet version (WpfInfiniteBoard)](https://img.shields.io/nuget/v/WpfInfiniteBoard.svg?style=flat-square)](https://www.nuget.org/packages/WpfInfiniteBoard)
 
 ## Implémentation :
