@@ -29,7 +29,6 @@ namespace demo
         {
             InfiniteBoard.CellAdded += (sender, e) =>
             {
-                
             };
         }
 

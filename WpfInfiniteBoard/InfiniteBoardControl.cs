@@ -47,6 +47,8 @@ namespace WpfInfiniteBoard
         private Point CenterCell { get; set; }
         private Border CellTemplate { get; set; }
 
+        private long CellCounter = 0;
+
         private Dictionary<Point, Border> InfiniteCanvasChildren = new Dictionary<Point, Border>();
 
         /// <summary>
@@ -244,13 +246,12 @@ namespace WpfInfiniteBoard
                 GetCoordinateWhereToPlace(out posX, out posY);
 
                 // vérifie que aucun n'est déjà placé là
-                if (!DoesAnyCellsAlreadyExistHereNoOrigin(posX, posY))
+                if (e.LeftButton == MouseButtonState.Pressed)
                 {
-                    if (e.LeftButton == MouseButtonState.Pressed)
-                        // Place une nouvelle cell
-                        AddCell(posX, posY);
+                    // Place une nouvelle cell
+                    AddCell(posX, posY);
                 }
-                else if (e.RightButton == MouseButtonState.Pressed || e.LeftButton == MouseButtonState.Pressed)
+                else if (e.RightButton == MouseButtonState.Pressed)
                 {
                     EraseCellAtCoordinate(posX, posY);
                 }
@@ -273,11 +274,10 @@ namespace WpfInfiniteBoard
                 GetCoordinateWhereToPlace(out posX, out posY);
 
                 // vérifie que aucun n'est déjà placé là
-                if (!DoesAnyCellsAlreadyExistHereNoOrigin(posX, posY))
-                {
-                    // Place une nouvelle cell
-                    AddCell(posX, posY);
-                }
+
+                // Place une nouvelle cell
+                AddCell(posX, posY);
+                
                 
             }
             // eraser
@@ -290,10 +290,9 @@ namespace WpfInfiniteBoard
                     GetCoordinateWhereToPlace(out posX, out posY);
 
                     // vérifie que aucun n'est déjà placé là
-                    if (DoesAnyCellsAlreadyExistHereNoOrigin(posX, posY))
-                    {
-                        EraseCellAtCoordinate(posX, posY);
-                    }
+
+                    EraseCellAtCoordinate(posX, posY);
+                    
 
                 }
                 catch { }
@@ -309,7 +308,7 @@ namespace WpfInfiniteBoard
         {
             Point co = CoordinateToCoordinateFromOrigin(posX, posY);
 
-            EraseCell(Convert.ToInt32(co.X), Convert.ToInt32(co.Y));
+            EraseCell(co.X, co.Y);
         }
 
         /// <summary>
@@ -318,9 +317,9 @@ namespace WpfInfiniteBoard
         /// <param name="xFromOrigin"></param>
         /// <param name="yFromOrigin"></param>
         /// <returns></returns>
-        private Border? GetCellAtCoordinate(int xFromOrigin, int yFromOrigin)
+        private Border? GetCellAtCoordinate(double xFromOrigin, double yFromOrigin)
         {
-            return InfiniteCanvasChildren.FirstOrDefault(x => x.Key.X == xFromOrigin && x.Key.Y == yFromOrigin).Value;
+            return InfiniteCanvasChildren[new Point(xFromOrigin, yFromOrigin)];
         }
 
         /// <summary>
@@ -328,34 +327,26 @@ namespace WpfInfiniteBoard
         /// </summary>
         /// <param name="xFromOrigin"></param>
         /// <param name="yFromOrigin"></param>
-        public void EraseCell(int xFromOrigin, int yFromOrigin)
+        public void EraseCell(double xFromOrigin, double yFromOrigin)
         {
-            Border? cell = GetCellAtCoordinate(Convert.ToInt32(xFromOrigin), Convert.ToInt32(yFromOrigin));
-            CanvasMain.Children.Remove(cell);
-            InfiniteCanvasChildren.Remove(
-                new Point(xFromOrigin, yFromOrigin)
-            );
+            Border b;
+            if (InfiniteCanvasChildren.TryGetValue(new Point(xFromOrigin, yFromOrigin), out b))
+            {
+                CanvasMain.Children.Remove(b);
+                InfiniteCanvasChildren.Remove(
+                    new Point(xFromOrigin, yFromOrigin)
+                );
+            }
+
         }
 
-        /// <summary>
-        /// Est-ce que une case existe dans ses coordonné 
-        /// </summary>
-        /// <param name="xFromOrigin"></param>
-        /// <param name="yFromOrigin"></param>
-        /// <returns></returns>
-        private bool DoesAnyCellsAlreadyExistHereNoOrigin(int x, int y)
-        {
-            Point co = CoordinateToCoordinateFromOrigin(x, y);
-            return InfiniteCanvasChildren.Any(x => x.Key.X == co.X && x.Key.Y == co.Y);
-        }
-        
         /// <summary>
         /// Est-ce que une case existe dans ses coordonné (par apport à l'origine)
         /// </summary>
         /// <returns></returns>
         public bool DoesAnyCellsAlreadyExistHere(int xFromOrigin, int yFromOrigin)
         {
-            return InfiniteCanvasChildren.Any(x => x.Key.X == xFromOrigin && x.Key.Y == yFromOrigin);
+            return InfiniteCanvasChildren.ContainsKey(new Point(xFromOrigin, yFromOrigin));
         }
 
         /// <summary>
@@ -377,8 +368,11 @@ namespace WpfInfiniteBoard
         /// <param name="yFromOrigin"></param>
         public void PlaceCell(int xFromOrigin, int yFromOrigin)
         {
-            if (!DoesAnyCellsAlreadyExistHere(Convert.ToInt32(CenterCell.X) + (xFromOrigin * cellSize), Convert.ToInt32(CenterCell.Y) + (yFromOrigin * cellSize)))
-                AddCell(Convert.ToInt32(CenterCell.X) + (xFromOrigin * cellSize), Convert.ToInt32(CenterCell.Y) + (yFromOrigin * cellSize));
+            int x = (int)CenterCell.X + (xFromOrigin * cellSize);
+            int y = (int)CenterCell.Y + (yFromOrigin * cellSize);
+
+            if (!DoesAnyCellsAlreadyExistHere(xFromOrigin, yFromOrigin))
+                AddCell(x, y);
         }
         
         /// <summary>
@@ -439,24 +433,31 @@ namespace WpfInfiniteBoard
         /// <param name="posY"></param>
         private void AddCell(int posX, int posY)
         {
-            if (!DoesAnyCellsAlreadyExistHereNoOrigin(posX, posY))
-            { 
-                Border copy = XamlReader.Parse(XamlWriter.Save(CellTemplate)) as Border;
+            Border d = new Border()
+            {
+                Width = cellSize + 0.1,
+                Height = cellSize + 0.1,
+                Background = placedCellBackground,
+                BorderBrush = placedCellBorderBrush,
+                BorderThickness = placedCellHaveBorder == true ? CellTemplate.BorderThickness = new Thickness(borderThickness) : new Thickness(0),
+                Tag = CellCounter
+            };
 
-                InfiniteCanvasChildren.Add(
+            CellCounter++;
 
-                        CoordinateToCoordinateFromOrigin(posX, posY),
+            if (InfiniteCanvasChildren.TryAdd(
+                    CoordinateToCoordinateFromOrigin(posX, posY),
+                d))
+            {
 
-
-                    copy);
-
-                CanvasMain.Children.Add(copy);
-                Canvas.SetLeft(copy, posX);
-                Canvas.SetTop(copy, posY);
+                CanvasMain.Children.Add(d);
+                Canvas.SetLeft(d, posX);
+                Canvas.SetTop(d, posY);
 
                 if (CellAdded != null)
-                    CellAdded(this, copy);
+                    CellAdded(this, d);
             }
+            
         }
 
         /// <summary>
@@ -470,8 +471,8 @@ namespace WpfInfiniteBoard
             return new Point(
             
 
-                NeareastMultiple(Convert.ToInt32(((x - CenterCell.X))), CellSize) / CellSize,
-                NeareastMultiple(Convert.ToInt32(((y - CenterCell.Y))), CellSize) / CellSize
+               (x - CenterCell.X) / CellSize,
+                (y - CenterCell.Y) / CellSize
 
             );
         }
@@ -483,7 +484,7 @@ namespace WpfInfiniteBoard
         {
             foreach (var entry in GetAllChildren())
             {
-                EraseCell(Convert.ToInt32(entry.Key.X), Convert.ToInt32( entry.Key.Y)) ;
+                EraseCell(entry.Key.X, entry.Key.Y) ;
             }
         }
     }
