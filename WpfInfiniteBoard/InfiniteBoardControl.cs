@@ -371,8 +371,7 @@ namespace WpfInfiniteBoard
             int x = (int)CenterCell.X + (xFromOrigin * cellSize);
             int y = (int)CenterCell.Y + (yFromOrigin * cellSize);
 
-            if (!DoesAnyCellsAlreadyExistHere(xFromOrigin, yFromOrigin))
-                AddCell(x, y);
+            AddCell(x, y);
         }
         
         /// <summary>
