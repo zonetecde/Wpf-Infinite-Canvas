@@ -7,6 +7,7 @@ Un contrôle grillé infini et entièrement customisable où l'on peut naviguer 
 
 
 [![NuGet version (WpfInfiniteBoard)](https://img.shields.io/nuget/v/WpfInfiniteBoard.svg?style=flat-square)](https://www.nuget.org/packages/WpfInfiniteBoard)
+![Workflow](https://github.com/zonetecde/WpfInfiniteBoard/actions/workflows/dotnet.yml/badge.svg)
 
 ## Implémentation :
 
