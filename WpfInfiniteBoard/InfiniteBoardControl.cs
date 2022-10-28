@@ -45,11 +45,11 @@ namespace WpfInfiniteBoard
         private int CANVAS_SIZE = 10_000_000;
 
         private Point CenterCell { get; set; }
-        private Border CellTemplate { get; set; }
+        private Rectangle CellTemplate { get; set; }
 
         private long CellCounter = 0;
 
-        private Dictionary<Point, Border> InfiniteCanvasChildren = new Dictionary<Point, Border>();
+        private Dictionary<Point, Rectangle> InfiniteCanvasChildren = new Dictionary<Point, Rectangle>();
 
         /// <summary>
         /// La taille des cases
@@ -148,7 +148,7 @@ namespace WpfInfiniteBoard
             placedCellHaveBorder = value;
 
             if(CellTemplate != null)
-                CellTemplate.BorderThickness = placedCellHaveBorder == false ? new Thickness(0) : new Thickness(borderThickness);
+                CellTemplate.StrokeThickness = placedCellHaveBorder == false ? 0 : borderThickness;
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace WpfInfiniteBoard
         [Browsable(true)]
         [Category("Action")]
         [Description("Invoquer quand une nouvelle case est ajoutée")]
-        public event EventHandler<Border> CellAdded;
+        public event EventHandler<Rectangle> CellAdded;
 
         // Convertisseur du code hex en Brush
         BrushConverter BrushConverter = new BrushConverter();
@@ -189,19 +189,19 @@ namespace WpfInfiniteBoard
             CanvasMain.Height = CANVAS_SIZE;
 
             // Set un template d'une case posée dans le board
-            CellTemplate = new Border()
+            CellTemplate = new Rectangle()
             {
                 Width = cellSize + 0.1, 
                 Height = cellSize + 0.1,
-                Background = placedCellBackground,
+                Fill = placedCellBackground,
             };
 
             // Application des propriétés 
             ApplyCellSize();
             ChangeBackgroundAndBorderColor(this.Background, this.Foreground);
             ChangeBorderThickness(borderThickness);
-            CellTemplate.BorderBrush = placedCellBorderBrush;
-            CellTemplate.BorderThickness = placedCellHaveBorder == true ? CellTemplate.BorderThickness = new Thickness(borderThickness) : new Thickness(0);
+            CellTemplate.Stroke = placedCellBorderBrush;
+            CellTemplate.StrokeThickness = placedCellHaveBorder == true ? borderThickness : 0;
 
             // Quand tout est loaded avec ActualHeight & ActualWidth avec une valeur.
             this.Loaded += (sender, e) =>
@@ -317,7 +317,7 @@ namespace WpfInfiniteBoard
         /// <param name="xFromOrigin"></param>
         /// <param name="yFromOrigin"></param>
         /// <returns></returns>
-        private Border? GetCellAtCoordinate(double xFromOrigin, double yFromOrigin)
+        private Rectangle? GetCellAtCoordinate(double xFromOrigin, double yFromOrigin)
         {
             return InfiniteCanvasChildren[new Point(xFromOrigin, yFromOrigin)];
         }
@@ -329,7 +329,7 @@ namespace WpfInfiniteBoard
         /// <param name="yFromOrigin"></param>
         public void EraseCell(double xFromOrigin, double yFromOrigin)
         {
-            Border b;
+            Rectangle b;
             if (InfiniteCanvasChildren.TryGetValue(new Point(xFromOrigin, yFromOrigin), out b))
             {
                 CanvasMain.Children.Remove(b);
@@ -378,7 +378,7 @@ namespace WpfInfiniteBoard
         /// Retourne toutes les cases placées
         /// </summary>
         /// <returns></returns>
-        public Dictionary<Point, Border> GetAllChildren()
+        public Dictionary<Point, Rectangle> GetAllChildren()
         {
             return InfiniteCanvasChildren;
         }
@@ -414,7 +414,7 @@ namespace WpfInfiniteBoard
             this.borderThickness = borderThickness;
 
             (GetTemplateChild("Rectangle_cell") as Rectangle).StrokeThickness = borderThickness;
-            CellTemplate.BorderThickness = new Thickness(borderThickness);
+            CellTemplate.StrokeThickness = borderThickness;
         }
 
         private static int NeareastMultiple(int value, int factor)
@@ -432,13 +432,13 @@ namespace WpfInfiniteBoard
         /// <param name="posY"></param>
         private void AddCell(int posX, int posY)
         {
-            Border d = new Border()
+            Rectangle d = new Rectangle()
             {
                 Width = cellSize + 0.1,
                 Height = cellSize + 0.1,
-                Background = placedCellBackground,
-                BorderBrush = placedCellBorderBrush,
-                BorderThickness = placedCellHaveBorder == true ? CellTemplate.BorderThickness = new Thickness(borderThickness) : new Thickness(0),
+                Fill = placedCellBackground,
+                Stroke = placedCellBorderBrush,
+                StrokeThickness = placedCellHaveBorder == true ? borderThickness :0,
                 Tag = CellCounter
             };
 
@@ -481,10 +481,11 @@ namespace WpfInfiniteBoard
         /// </summary>
         public void ClearBoard()
         {
-            foreach (var entry in GetAllChildren())
-            {
-                EraseCell(entry.Key.X, entry.Key.Y) ;
-            }
+            CanvasMain.Children.Clear();
+            //foreach (var entry in GetAllChildren())
+            //{
+            //    EraseCell(entry.Key.X, entry.Key.Y) ;
+            //}
         }
     }
 }
