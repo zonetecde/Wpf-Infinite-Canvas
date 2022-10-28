@@ -55,7 +55,7 @@ d:Width="1920" d:Height="1080" <!-- Important à précisé, sinon votre fenêtre
 ![image](https://user-images.githubusercontent.com/56195432/197851455-c1d78a4c-801a-456a-9fa8-94726312ebea.png)
 
 
-**CellAdded** *(sender, e)* : Évènement se délanchant lorsqu'une case est ajouté, *e* étant la nouvelle case (de type Border)
+**CellAdded** *(sender, e)* : Évènement se délanchant lorsqu'une case est ajouté, *e* étant la nouvelle case (de type Rectangle)
 
 
 ## Quelques méthode à connaitre :
