@@ -44,12 +44,13 @@ namespace WpfInfiniteBoard
     {
         private int CANVAS_SIZE = 10_000_000;
 
-        private Point CenterCell { get; set; }
+        internal Point CenterCell { get; set; }
         private Rectangle CellTemplate { get; set; }
 
         private long CellCounter = 0;
 
-        private Dictionary<Point, Rectangle> InfiniteCanvasChildren = new Dictionary<Point, Rectangle>();
+        private Dictionary<Point, Rectangle> InfiniteCanvasChildren_Cell = new Dictionary<Point, Rectangle>();
+        private List<PlacedControl> InfiniteCanvasChildren_Control = new List<PlacedControl>();
 
         /// <summary>
         /// La taille des cases
@@ -137,6 +138,36 @@ namespace WpfInfiniteBoard
         {
             get => placedCellHaveBorder;
             set => ChangeDoesPlacedCellHaveBorder(value);
+        } 
+        
+        /// <summary>
+        /// Afficher le quadrillage?
+        /// </summary>
+        private bool? showQuartering = true;
+        [Description("Is the quartering visible ?"), Category("Apparence")]
+        public bool? ShowQuartering
+        {
+            get => showQuartering;
+            set => ChangeShowQuartering(value);
+        }
+
+        private void ChangeShowQuartering(bool? value)
+        {
+            showQuartering = value;
+
+            try
+            {
+                if (showQuartering == false)
+                {
+                    (GetTemplateChild("Grid_Conteneur") as Grid).Background = Background;
+                    CanvasMain.Background.Opacity = 0;
+                }
+                else
+                {
+                    CanvasMain.Background.Opacity = 1;
+                }
+            }
+            catch { }
         }
 
         /// <summary>
@@ -171,7 +202,7 @@ namespace WpfInfiniteBoard
         }
 
         // Canvas principal
-        private Canvas CanvasMain;
+        internal Canvas CanvasMain;
 
         // MovingAround object
         private MovingAround Ma = new MovingAround();
@@ -200,6 +231,7 @@ namespace WpfInfiniteBoard
             ApplyCellSize();
             ChangeBackgroundAndBorderColor(this.Background, this.Foreground);
             ChangeBorderThickness(borderThickness);
+            ChangeShowQuartering(showQuartering);
             CellTemplate.Stroke = placedCellBorderBrush;
             CellTemplate.StrokeThickness = placedCellHaveBorder == true ? borderThickness : 0;
 
@@ -208,6 +240,7 @@ namespace WpfInfiniteBoard
             {
                 // Ref au Grid_Conteneur
                 Grid? GridConteneur = GetTemplateChild("Grid_Conteneur") as Grid;
+
                 // Init Moving Around object
                 Ma.MovingAroundCanvasInit(CanvasMain, GridConteneur, this);
 
@@ -239,7 +272,7 @@ namespace WpfInfiniteBoard
         /// <param name="e"></param>
         private void Canvas_Main_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (allowUserToPlaceCells)
+            if (allowUserToPlaceCells && Mouse.DirectlyOver == sender) // Sinon est sur un contrôle dans le Canvas
             {
                 // place une cellule là où on a cliqué
                 int posX, posY;
@@ -266,7 +299,7 @@ namespace WpfInfiniteBoard
         private void Canvas_Main_MouseMove(object sender, MouseEventArgs e)
         {
             // Passe en mode "dessine"
-            if (e.LeftButton == MouseButtonState.Pressed && allowUserToPlaceCells)
+            if (e.LeftButton == MouseButtonState.Pressed && allowUserToPlaceCells && Mouse.DirectlyOver == sender)
             {
                 
                 // place une cellule là où on a cliqué
@@ -319,7 +352,7 @@ namespace WpfInfiniteBoard
         /// <returns></returns>
         private Rectangle? GetCellAtCoordinate(double xFromOrigin, double yFromOrigin)
         {
-            return InfiniteCanvasChildren[new Point(xFromOrigin, yFromOrigin)];
+            return InfiniteCanvasChildren_Cell[new Point(xFromOrigin, yFromOrigin)];
         }
 
         /// <summary>
@@ -330,10 +363,10 @@ namespace WpfInfiniteBoard
         public void EraseCell(double xFromOrigin, double yFromOrigin)
         {
             Rectangle b;
-            if (InfiniteCanvasChildren.TryGetValue(new Point(xFromOrigin, yFromOrigin), out b))
+            if (InfiniteCanvasChildren_Cell.TryGetValue(new Point(xFromOrigin, yFromOrigin), out b))
             {
                 CanvasMain.Children.Remove(b);
-                InfiniteCanvasChildren.Remove(
+                InfiniteCanvasChildren_Cell.Remove(
                     new Point(xFromOrigin, yFromOrigin)
                 );
             }
@@ -346,7 +379,7 @@ namespace WpfInfiniteBoard
         /// <returns></returns>
         public bool DoesAnyCellsAlreadyExistHere(int xFromOrigin, int yFromOrigin)
         {
-            return InfiniteCanvasChildren.ContainsKey(new Point(xFromOrigin, yFromOrigin));
+            return InfiniteCanvasChildren_Cell.ContainsKey(new Point(xFromOrigin, yFromOrigin));
         }
 
         /// <summary>
@@ -378,9 +411,18 @@ namespace WpfInfiniteBoard
         /// Retourne toutes les cases placées
         /// </summary>
         /// <returns></returns>
-        public Dictionary<Point, Rectangle> GetAllChildren()
+        public Dictionary<Point, Rectangle> GetAllColouredCell()
         {
-            return InfiniteCanvasChildren;
+            return InfiniteCanvasChildren_Cell;
+        }
+
+        /// <summary>
+        /// Retourne tous les contrôles placés
+        /// </summary>
+        /// <returns></returns>
+        public List<PlacedControl> GetAllControl()
+        {
+            return InfiniteCanvasChildren_Control;
         }
 
         /// <summary>
@@ -444,7 +486,7 @@ namespace WpfInfiniteBoard
 
             CellCounter++;
 
-            if (InfiniteCanvasChildren.TryAdd(
+            if (InfiniteCanvasChildren_Cell.TryAdd(
                     CoordinateToCoordinateFromOrigin(posX, posY),
                 d))
             {
@@ -467,12 +509,9 @@ namespace WpfInfiniteBoard
         /// <returns></returns>
         private Point CoordinateToCoordinateFromOrigin(int x, int y)
         {
-            return new Point(
-            
-
+            return new Point(           
                (x - CenterCell.X) / CellSize,
                 (y - CenterCell.Y) / CellSize
-
             );
         }
 
@@ -482,10 +521,126 @@ namespace WpfInfiniteBoard
         public void ClearBoard()
         {
             CanvasMain.Children.Clear();
-            //foreach (var entry in GetAllChildren())
-            //{
-            //    EraseCell(entry.Key.X, entry.Key.Y) ;
-            //}
+            InfiniteCanvasChildren_Cell.Clear();
+            InfiniteCanvasChildren_Control.Clear();
         }
+
+        /// <summary>
+        /// Place un contrôle aux coordonnées donnés
+        /// </summary>
+        /// <param name="posFromorigin">Position du contrôle à partir du centre du contrôle</param>
+        /// <param name="control">Le contrôle a ajouté</param>
+        /// <param name="moveable">Est-ce que l'on peut déplacer le contrôle dans l'InfiniteBoard à l'aide d'un clique gauche ?</param>
+        /// <param name="moveableTrigger">L'enfant du contrôle a cliqué pour pouvoir le déplacer, null = tout le contrôle</param>
+        /// <returns>Réussite de l'opération (false = contrôle déjà placé quelque part)</returns>
+        public bool PlaceControl(Point posFromorigin, UIElement control, bool moveable = true, UIElement moveableTrigger = null, Action<Point> IsMoving = null)
+        {
+            if (!InfiniteCanvasChildren_Control.Any(x => x.Control == control))
+            {
+                var placedControl = new PlacedControl(posFromorigin, control);
+                InfiniteCanvasChildren_Control.Add(placedControl);
+
+                CanvasMain.Children.Add(placedControl.Control);
+                Canvas.SetLeft(placedControl.Control, CenterCell.X + posFromorigin.X);
+                Canvas.SetTop(placedControl.Control, CenterCell.Y + posFromorigin.Y);
+
+                if(moveable)
+                {
+                    MovingAround.SetUpMovingAroundControl(control, moveableTrigger, CanvasMain, (Point newPos) => placedControl.PositionFromOrigin = newPos, CenterCell, IsMoving);              
+                }
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Change la position d'un contrôle 
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="newPosFromOrigin"></param>
+        /// <returns>Réussite de l'opération</returns>
+        public bool ChangeControlPosition(UIElement control, Point newPosFromOrigin)
+        {
+            var temp = InfiniteCanvasChildren_Control.FirstOrDefault(x => x.Control == control);
+
+            if (temp != default)
+            {
+                Canvas.SetLeft(temp.Control, CenterCell.X + newPosFromOrigin.X);
+                Canvas.SetTop(temp.Control, CenterCell.Y + newPosFromOrigin.Y);
+                temp.PositionFromOrigin = newPosFromOrigin;
+                return true;
+            }
+            else
+                return false;
+        }
+        
+        /// <summary>
+        /// Renvois la position du contrôle donné
+        /// </summary>
+        /// <param name="control"></param>
+        /// <returns>Renvois 0;0 si pas trouvé</returns>
+        public Point GetControlPosition(UIElement control)
+        {
+            var temp = InfiniteCanvasChildren_Control.FirstOrDefault(x => x.Control == control);
+
+            if (temp != default)
+            {
+                return temp.PositionFromOrigin;
+            }
+            else
+                return new Point(0,0);
+        }
+
+        /// <summary>
+        /// Supprime le contrôle aux coordonnées donnés. 
+        /// </summary>
+        /// <param name="posFromOrigin"></param>
+        /// <returns>Réussite de l'opération (false = aucun contrôle à ses coordonnées)</returns>
+        public bool EraseControlFromCoordinate(Point posFromOrigin)
+        {
+            var temp = InfiniteCanvasChildren_Control.FirstOrDefault(x => x.PositionFromOrigin == posFromOrigin);
+            if (temp != default)
+            {
+                CanvasMain.Children.Remove(temp.Control);
+                InfiniteCanvasChildren_Control.Remove(temp);
+                return true;
+            }
+            else
+                return false;
+        }
+        
+        /// <summary>
+        /// Supprime le contrôle données
+        /// </summary>
+        /// <param name="posFromOrigin"></param>
+        /// <returns>Réussite de l'opération (false = aucun contrôle à ses coordonnées)</returns>
+        public bool EraseControl(UIElement control)
+        {
+            var temp = InfiniteCanvasChildren_Control.FirstOrDefault(x => x.Control == control);
+            if (temp != default)
+            {
+                CanvasMain.Children.Remove(temp.Control);
+                InfiniteCanvasChildren_Control.Remove(temp);
+                return true;
+            }
+            else
+                return false;
+        }
+    }
+
+    public class PlacedControl
+    {
+        public PlacedControl(Point positionFromOrigin, UIElement control)
+        {
+            PositionFromOrigin = positionFromOrigin;
+            Control = control;
+        }
+
+        public Point PositionFromOrigin { get; set; }
+        public UIElement Control { get; set; }
     }
 }

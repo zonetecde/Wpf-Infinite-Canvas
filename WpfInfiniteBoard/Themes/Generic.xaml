@@ -9,6 +9,8 @@
                     
                     <!-- CONTENUR PRINCIPAL-->
                     <Grid x:Name="Grid_Conteneur"  ClipToBounds="True">
+                        
+                        
                         <Canvas x:Name="Canvas_Main">
                             <Canvas.Background>
                                 <VisualBrush x:Name="visualBrush_cell" TileMode="Tile"
@@ -21,7 +23,10 @@
                                 </VisualBrush>
                             </Canvas.Background>
                         </Canvas>
+                        
+                        
                     </Grid>
+                    
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

@@ -16,6 +16,7 @@
 
         <Grid Grid.Row="0">
             <InfiniteBoard:InfiniteBoardControl x:Name="InfiniteBoard" CellSize="40" 
+                                                ShowQuartering="True"
                                                 AllowUserToZoom="True" AllowUserToMoveAround="True" 
                                                 Foreground="Orange" Background="Beige" PlacedCellBorderBrush="Green" 
                                                 PlacedCellBackground="Aqua" PlacedCellHaveBorder="True"/>

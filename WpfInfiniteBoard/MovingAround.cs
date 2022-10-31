@@ -90,15 +90,65 @@ namespace WpfInfiniteBoard
 
         internal void Canvas_PreviewMouseMove(object sender, MouseEventArgs e)
         {
-            if (!_isMoving ) return;
+            if (!_isMoving) return;
 
-                var mousePoint = Mouse.GetPosition(Conteneur);
+            var mousePoint = Mouse.GetPosition(Conteneur);
 
-                var offsetX = (_currentTT == null ? 0 : 0 - _currentTT.X) + deltaX - mousePoint.X;
-                var offsetY = (_currentTT == null ? 0 : 0 - _currentTT.Y) + deltaY - mousePoint.Y;
+            var offsetX = (_currentTT == null ? 0 : 0 - _currentTT.X) + deltaX - mousePoint.X;
+            var offsetY = (_currentTT == null ? 0 : 0 - _currentTT.Y) + deltaY - mousePoint.Y;
 
-                (this.Canvas.RenderTransform as TransformGroup).Children[1] = new TranslateTransform(-offsetX, -offsetY);
-           
+            (this.Canvas.RenderTransform as TransformGroup).Children[1] = new TranslateTransform(-offsetX, -offsetY);
+            
+        }
+
+        internal static void SetUpMovingAroundControl(UIElement control, UIElement? controlTrigger, Canvas MainCanvas, Action<Point> PosChange, Point CenterCell, Action<Point> isMoving)
+        {
+            bool isDragging = false;
+            Point clickPosition;
+
+            var movingTrigger = controlTrigger == null ? control : controlTrigger;
+
+
+            movingTrigger.PreviewMouseLeftButtonDown += (sender, e) => {
+                isDragging = true;
+                var draggableControl = sender as UIElement;
+                clickPosition = e.GetPosition(sender as UIElement);
+                draggableControl.CaptureMouse();
+            };
+            movingTrigger.PreviewMouseLeftButtonUp += (sender, e) => {
+                isDragging = false;
+                var draggable = sender as UIElement;
+                draggable.ReleaseMouseCapture();
+            };
+            movingTrigger.PreviewMouseMove += (sender, e) => {
+                var draggableControl = sender as UIElement;
+
+                if (isDragging && draggableControl != null)
+                {
+                    Point currentPosition = e.GetPosition(MainCanvas);
+
+
+                    var transform = draggableControl.RenderTransform as TranslateTransform;
+                    if (transform == null)
+                    {
+                        transform = new TranslateTransform();
+                        draggableControl.RenderTransform = transform;
+                    }
+
+                    Point relativeLocation = new Point(0, 0);
+                    if(controlTrigger != null)
+                        relativeLocation = controlTrigger.TranslatePoint(new Point(0, 0), control); // pour que ça bouge depuis le controlTrigger
+
+                    Canvas.SetLeft(control, (currentPosition.X - clickPosition.X) - relativeLocation.X);
+                    Canvas.SetTop(control, (currentPosition.Y - clickPosition.Y) -relativeLocation.Y);
+                    var newPos = new Point((CenterCell.X - Canvas.GetLeft(control)) * -1,( CenterCell.Y - Canvas.GetTop(control)) - 1);
+                    PosChange(newPos);
+                    if (isMoving != null)
+                        isMoving(newPos);
+                }
+            };
+
+
         }
     }
 }

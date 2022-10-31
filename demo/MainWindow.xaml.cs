@@ -29,7 +29,24 @@ namespace demo
         {
             InfiniteBoard.CellAdded += (sender, e) =>
             {
+
+
             };
+            InfiniteBoard.PlaceControl(new Point(50, 50), new Border() { Background = Brushes.Black, Width = 200, Height = 500, }, true, null, (newPos) => { });
+            Grid a = new Grid();
+            a.Children.Add(new Rectangle()
+            {
+                Width = 50,
+                Height = 50,
+                Fill = Brushes.AliceBlue
+            });
+            InfiniteBoard.PlaceControl(new Point(-200, -500), new Border()
+            {
+                Background = Brushes.Black,
+                Width = 200,
+                Height = 500,
+                Child = a
+            }, true, a.Children[0]);
         }
 
         private void Button_EraseAll_Click(object sender, RoutedEventArgs e)
