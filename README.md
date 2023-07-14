@@ -1,6 +1,6 @@
 
 
-# WpfInfiniteBoard
+# WpfInfiniteCanvas
 Un contrôle quadrillé infini et entièrement customisable où l'on peut naviguer et placer des cases ou d'autres contrôles amovibles 
 
 
